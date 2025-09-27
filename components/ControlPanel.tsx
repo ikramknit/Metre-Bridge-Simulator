@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 interface ControlPanelProps {
@@ -19,9 +18,12 @@ interface ControlPanelProps {
 
 const LabelledInput: React.FC<{ label: string; unit: string; value: number; onChange: (val: number) => void, min: number, max: number, step: number }> = 
 ({ label, unit, value, onChange, min, max, step }) => {
+  const decimals = step.toString().split('.')[1]?.length || 0;
+  const formattedValue = value.toFixed(decimals);
+
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-300 mb-1">{label} ({unit})</label>
+      <label className="block text-sm font-medium text-gray-300 mb-1">{label}</label>
       <div className="flex items-center gap-2">
         <input
           type="range"
@@ -32,7 +34,7 @@ const LabelledInput: React.FC<{ label: string; unit: string; value: number; onCh
           onChange={(e) => onChange(parseFloat(e.target.value))}
           className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
         />
-        <span className="text-cyan-400 font-mono w-16 text-center">{value}</span>
+        <span className="text-cyan-400 font-mono w-24 text-center">{formattedValue} {unit}</span>
       </div>
     </div>
   );

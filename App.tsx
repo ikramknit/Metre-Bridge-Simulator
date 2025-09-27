@@ -4,6 +4,7 @@ import MetreBridge from './components/MetreBridge';
 import ControlPanel from './components/ControlPanel';
 import ObservationTable from './components/ObservationTable';
 import Calculations from './components/Calculations';
+import TutorialOverlay from './components/TutorialOverlay';
 import type { Observation } from './types';
 import { S_ACTUAL } from './constants';
 
@@ -20,9 +21,18 @@ export default function App(): React.ReactElement {
   const [observations, setObservations] = useState<Observation[]>([]);
   const [meanS, setMeanS] = useState<number | null>(null);
   const [resistivity, setResistivity] = useState<number | null>(null);
+  
+  const [showTutorial, setShowTutorial] = useState<boolean>(false);
 
   const wireRef = useRef<HTMLDivElement>(null);
   const balancingPoint = (100 * knownResistance) / (S_ACTUAL + knownResistance);
+  
+  useEffect(() => {
+    const hasSeenTutorial = localStorage.getItem('hasSeenMetreBridgeTutorial');
+    if (!hasSeenTutorial) {
+      setShowTutorial(true);
+    }
+  }, []);
 
   useEffect(() => {
     if (isCircuitOn) {
@@ -107,8 +117,15 @@ export default function App(): React.ReactElement {
     setIsDragging(false);
   };
 
+  const handleDismissTutorial = () => {
+    setShowTutorial(false);
+    localStorage.setItem('hasSeenMetreBridgeTutorial', 'true');
+  };
+
   return (
     <div className="bg-gray-900 min-h-screen text-white flex flex-col items-center p-4 selection:bg-cyan-500 selection:text-white">
+      {showTutorial && <TutorialOverlay onDismiss={handleDismissTutorial} />}
+
       <header className="w-full max-w-7xl text-center mb-4">
         <h1 className="text-4xl font-bold text-cyan-400">Metre Bridge Simulator</h1>
         <p className="text-gray-400 mt-1">To find the resistance of a given wire and determine its specific resistance (resistivity).</p>
