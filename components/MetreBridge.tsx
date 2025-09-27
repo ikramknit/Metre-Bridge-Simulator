@@ -7,15 +7,16 @@ interface MetreBridgeProps {
   isCircuitOn: boolean;
   wireRef: React.RefObject<HTMLDivElement>;
   onMouseDownOnWire: () => void;
+  isBalanced: boolean;
 }
 
 const Terminal: React.FC = () => (
   <div className="w-4 h-4 bg-yellow-500 rounded-full border-2 border-yellow-700 shadow-md"></div>
 );
 
-const Galvanometer: React.FC<{ deflection: number }> = ({ deflection }) => {
+const Galvanometer: React.FC<{ deflection: number; isBalanced: boolean }> = ({ deflection, isBalanced }) => {
   return (
-    <div className="relative w-28 h-20 bg-gray-200 rounded-lg shadow-inner border-2 border-gray-400 flex flex-col items-center justify-end p-1">
+    <div className={`relative w-28 h-20 bg-gray-200 rounded-lg shadow-inner border-2 flex flex-col items-center justify-end p-1 transition-all duration-300 ${isBalanced ? 'shadow-[0_0_15px_rgba(56,189,248,0.7)] border-cyan-400' : 'border-gray-400'}`}>
       <div className="text-black text-xs font-bold">G</div>
       <div className="w-full h-1 bg-gray-300 absolute top-1/2 -translate-y-1/2 flex justify-center">
         <div className="w-px h-2 bg-black"></div>
@@ -48,7 +49,7 @@ const ResistanceBox: React.FC = () => (
 );
 
 
-const MetreBridge: React.FC<MetreBridgeProps> = ({ jockeyPosition, galvanometerDeflection, isCircuitOn, wireRef, onMouseDownOnWire }) => {
+const MetreBridge: React.FC<MetreBridgeProps> = ({ jockeyPosition, galvanometerDeflection, isCircuitOn, wireRef, onMouseDownOnWire, isBalanced }) => {
   return (
     <div className="relative flex flex-col items-center justify-center h-[350px] p-4 bg-gradient-to-br from-yellow-900 to-yellow-950 rounded-lg shadow-lg">
       
@@ -70,7 +71,7 @@ const MetreBridge: React.FC<MetreBridgeProps> = ({ jockeyPosition, galvanometerD
       {/* Components on top */}
       <div className="absolute top-8 flex items-center justify-around w-[70%]">
           <div className="relative"><ResistanceBox /></div>
-          <div className="relative"><Galvanometer deflection={galvanometerDeflection} /></div>
+          <div className="relative"><Galvanometer deflection={galvanometerDeflection} isBalanced={isBalanced} /></div>
           <div className="relative">
             <div className="w-36 h-20 bg-gray-700 rounded-lg p-2 flex flex-col items-center justify-center shadow-lg border-2 border-gray-600">
                <span className="text-white font-bold text-sm">UNKNOWN</span>
@@ -110,7 +111,7 @@ const MetreBridge: React.FC<MetreBridgeProps> = ({ jockeyPosition, galvanometerD
         <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2" style={{ left: `${jockeyPosition}%` }}>
            <div className="relative w-4 h-12 flex flex-col items-center">
              <div className="w-1 h-8 bg-green-500" style={{ display: isCircuitOn ? 'block' : 'none' }}></div>
-             <div className="w-4 h-4 bg-gray-800 rounded-full border-2 border-gray-500 -mt-1"></div>
+             <div className={`w-4 h-4 bg-gray-800 rounded-full border-2 -mt-1 transition-all duration-300 ${isBalanced ? 'border-cyan-400 shadow-[0_0_10px_theme(colors.cyan.400)]' : 'border-gray-500'}`}></div>
              <div className="absolute -bottom-1 text-cyan-400 text-xs font-mono">{jockeyPosition.toFixed(1)}</div>
            </div>
         </div>

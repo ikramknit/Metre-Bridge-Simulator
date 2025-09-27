@@ -121,6 +121,8 @@ export default function App(): React.ReactElement {
     setShowTutorial(false);
     localStorage.setItem('hasSeenMetreBridgeTutorial', 'true');
   };
+  
+  const isBalanced = Math.abs(galvanometerDeflection) < 0.5 && isCircuitOn;
 
   return (
     <div className="bg-gray-900 min-h-screen text-white flex flex-col items-center p-4 selection:bg-cyan-500 selection:text-white">
@@ -139,6 +141,7 @@ export default function App(): React.ReactElement {
              isCircuitOn={isCircuitOn}
              wireRef={wireRef}
              onMouseDownOnWire={handleMouseDownOnWire}
+             isBalanced={isBalanced}
            />
         </div>
 
@@ -155,7 +158,7 @@ export default function App(): React.ReactElement {
             onRecord={handleRecordObservation}
             onCalculate={handleCalculate}
             onReset={handleReset}
-            isBalanced={Math.abs(galvanometerDeflection) < 0.5 && isCircuitOn}
+            isBalanced={isBalanced}
             canRecord={observations.length < 5}
           />
         </div>

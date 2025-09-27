@@ -16,13 +16,21 @@ interface ControlPanelProps {
   canRecord: boolean;
 }
 
-const LabelledInput: React.FC<{ label: string; unit: string; value: number; onChange: (val: number) => void, min: number, max: number, step: number }> = 
-({ label, unit, value, onChange, min, max, step }) => {
+const LabelledInput: React.FC<{ 
+  label: string; 
+  unit: string; 
+  value: number; 
+  onChange: (val: number) => void;
+  min: number;
+  max: number;
+  step: number;
+  tooltipText: string; 
+}> = ({ label, unit, value, onChange, min, max, step, tooltipText }) => {
   const decimals = step.toString().split('.')[1]?.length || 0;
   const formattedValue = value.toFixed(decimals);
 
   return (
-    <div>
+    <div className="relative group">
       <label className="block text-sm font-medium text-gray-300 mb-1">{label}</label>
       <div className="flex items-center gap-2">
         <input
@@ -35,6 +43,11 @@ const LabelledInput: React.FC<{ label: string; unit: string; value: number; onCh
           className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
         />
         <span className="text-cyan-400 font-mono w-24 text-center">{formattedValue} {unit}</span>
+      </div>
+      {/* Tooltip */}
+      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max max-w-xs px-3 py-1.5 bg-gray-900 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10 shadow-lg border border-gray-700">
+        {tooltipText}
+        <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-x-4 border-x-transparent border-t-4 border-t-gray-900"></div>
       </div>
     </div>
   );
@@ -71,6 +84,7 @@ const ControlPanel: React.FC<ControlPanelProps> = (props) => {
           min={1}
           max={10}
           step={0.5}
+          tooltipText="Sets the resistance from the resistance box. Unit: Ohms (Ω)"
         />
          <LabelledInput
           label="Unknown Wire Length (L)"
@@ -80,6 +94,7 @@ const ControlPanel: React.FC<ControlPanelProps> = (props) => {
           min={0.5}
           max={2}
           step={0.1}
+          tooltipText="Sets the total length of the unknown resistance wire. Unit: meters (m)"
         />
          <LabelledInput
           label="Unknown Wire Diameter (d)"
@@ -89,6 +104,7 @@ const ControlPanel: React.FC<ControlPanelProps> = (props) => {
           min={0.1}
           max={1.0}
           step={0.01}
+          tooltipText="Sets the diameter (thickness) of the unknown wire. Unit: millimeters (mm)"
         />
       </div>
 
