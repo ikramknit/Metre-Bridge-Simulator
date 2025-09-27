@@ -1,0 +1,5 @@
+{
+  "name": "Metre Bridge Simulator",
+  "description": "A realistic physics practical simulator to find the resistance of a given wire using a metre bridge and determine its specific resistance. Users can interact with a virtual lab setup, adjust parameters, and record observations to perform calculations.",
+  "requestFramePermissions": []
+}
