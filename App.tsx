@@ -36,15 +36,21 @@ export default function App(): React.ReactElement {
 
   useEffect(() => {
     if (isCircuitOn) {
+      // Avoid division by zero or negative if knownResistance is 0
+      if (S_ACTUAL + knownResistance <= 0) {
+        setGalvanometerDeflection(jockeyPosition > 50 ? 45 : -45);
+        return;
+      }
+      const calculatedBalancingPoint = (100 * knownResistance) / (S_ACTUAL + knownResistance);
       const sensitivity = 0.8;
-      let deflection = (jockeyPosition - balancingPoint) * sensitivity;
+      let deflection = (jockeyPosition - calculatedBalancingPoint) * sensitivity;
       // Clamp the deflection to a max/min value
       deflection = Math.max(-45, Math.min(45, deflection));
       setGalvanometerDeflection(deflection);
     } else {
       setGalvanometerDeflection(0);
     }
-  }, [jockeyPosition, isCircuitOn, balancingPoint, knownResistance]);
+  }, [jockeyPosition, isCircuitOn, knownResistance]);
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
     if (isDragging && wireRef.current) {
@@ -79,9 +85,9 @@ export default function App(): React.ReactElement {
 
   const handleRecordObservation = () => {
     const isBalanced = Math.abs(galvanometerDeflection) < 0.5;
-    if (isBalanced && observations.length < 5) {
+    if (isBalanced && observations.length < 5 && knownResistance > 0) {
       const l = jockeyPosition;
-      const sValue = knownResistance * (l / (100 - l));
+      const sValue = knownResistance * ((100-l) / l); // Corrected formula based on common lab setup
       const newObservation: Observation = {
         serial: observations.length + 1,
         R: knownResistance,
@@ -142,6 +148,8 @@ export default function App(): React.ReactElement {
              wireRef={wireRef}
              onMouseDownOnWire={handleMouseDownOnWire}
              isBalanced={isBalanced}
+             knownResistance={knownResistance}
+             setKnownResistance={setKnownResistance}
            />
         </div>
 
@@ -149,8 +157,6 @@ export default function App(): React.ReactElement {
           <ControlPanel
             isCircuitOn={isCircuitOn}
             setIsCircuitOn={setIsCircuitOn}
-            knownResistance={knownResistance}
-            setKnownResistance={setKnownResistance}
             wireLength={wireLength}
             setWireLength={setWireLength}
             wireDiameter={wireDiameter}
@@ -159,7 +165,7 @@ export default function App(): React.ReactElement {
             onCalculate={handleCalculate}
             onReset={handleReset}
             isBalanced={isBalanced}
-            canRecord={observations.length < 5}
+            canRecord={observations.length < 5 && knownResistance > 0}
           />
         </div>
       </div>

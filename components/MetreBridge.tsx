@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface MetreBridgeProps {
   jockeyPosition: number;
@@ -8,18 +8,90 @@ interface MetreBridgeProps {
   wireRef: React.RefObject<HTMLDivElement>;
   onMouseDownOnWire: () => void;
   isBalanced: boolean;
+  knownResistance: number;
+  setKnownResistance: (r: number) => void;
 }
 
-const MetreBridge: React.FC<MetreBridgeProps> = ({ jockeyPosition, galvanometerDeflection, isCircuitOn, wireRef, onMouseDownOnWire, isBalanced }) => {
+const PLUG_VALUES = [5, 2, 2, 1];
+
+const ResistancePlug: React.FC<{ value: number; x: number; y: number; isOut: boolean; onClick: () => void, isCircuitOn: boolean }> = ({ value, x, y, isOut, onClick, isCircuitOn }) => {
+  return (
+    <g onClick={onClick} className={`cursor-pointer ${!isCircuitOn ? 'opacity-50 pointer-events-none' : ''} group`}>
+      {/* Plug hole */}
+      <circle cx={x} cy={y} r="5" fill="#a16207" stroke="#6b21a8" strokeWidth="0.5" />
+      <circle cx={x} cy={y} r="4" fill="#1e293b" />
+      {/* Plug */}
+      <g style={{ transition: 'transform 0.2s ease-in-out' }} transform={isOut ? `translate(12, -8) rotate(15)` : 'translate(0,0)'}>
+         <circle cx={x} cy={y} r="4.5" fill="#f59e0b" stroke="#854d0e" strokeWidth="0.5" className="group-hover:stroke-cyan-400" />
+         <rect x={x-2} y={y-10} width="4" height="6" rx="1" fill="#1e293b" />
+      </g>
+      <text x={x} y={y - 15} textAnchor="middle" fontSize="6" fill="#fde047" className="font-mono">{value}Ω</text>
+    </g>
+  );
+};
+
+const MetreBridge: React.FC<MetreBridgeProps> = ({ jockeyPosition, galvanometerDeflection, isCircuitOn, wireRef, onMouseDownOnWire, isBalanced, knownResistance, setKnownResistance }) => {
+  const [plugsOut, setPlugsOut] = useState<boolean[]>(() => {
+    const initialPlugs: boolean[] = [false, false, false, false];
+    let r = knownResistance;
+    if (r >= 5) { initialPlugs[0] = true; r -= 5; }
+    if (r >= 2) { initialPlugs[1] = true; r -= 2; }
+    if (r >= 2) { initialPlugs[2] = true; r -= 2; }
+    if (r >= 1) { initialPlugs[3] = true; r -= 1; }
+    return initialPlugs;
+  });
+
+  useEffect(() => {
+    // This effect recalculates the plugs if knownResistance is changed externally (e.g., by reset)
+    const newPlugs: boolean[] = [false, false, false, false];
+    let r = knownResistance;
+    if (r >= 5) { newPlugs[0] = true; r -= 5; }
+    if (r >= 2) { newPlugs[1] = true; r -= 2; }
+    if (r >= 2) { newPlugs[2] = true; r -= 2; }
+    if (r >= 1) { newPlugs[3] = true; }
+    // A simple check to prevent infinite loops if the state is already correct
+    if (JSON.stringify(newPlugs) !== JSON.stringify(plugsOut)) {
+        setPlugsOut(newPlugs);
+    }
+  }, [knownResistance]);
   
+
+  const handlePlugClick = (index: number) => {
+    const newPlugsOut = [...plugsOut];
+    newPlugsOut[index] = !newPlugsOut[index];
+    setPlugsOut(newPlugsOut);
+    
+    const newResistance = newPlugsOut.reduce((acc, isOut, i) => {
+      return acc + (isOut ? PLUG_VALUES[i] : 0);
+    }, 0);
+    
+    setKnownResistance(newResistance);
+  };
+
   const jockeyX = 60 + (jockeyPosition / 100) * 280;
-  const circuitStrokeColor = isCircuitOn ? '#4ade80' : '#4b5563'; // Green when on
+  const circuitStrokeColor = isCircuitOn ? '#4ade80' : '#4b5563';
   const textFillColor = '#cbd5e1';
 
   return (
     <div className="relative flex flex-col items-center justify-center h-[450px] p-4 bg-gray-900/80 rounded-lg shadow-lg overflow-hidden backdrop-blur-sm">
+      <style>{`
+        @keyframes march {
+          to {
+            stroke-dashoffset: 20;
+          }
+        }
+        .current-flow {
+          stroke-dasharray: 10 10;
+          animation: march 1.5s linear infinite;
+        }
+      `}</style>
       <div className="w-full h-full relative">
         <svg viewBox="0 0 400 250" className="absolute w-full h-full" preserveAspectRatio="xMidYMid meet">
+            <defs>
+              <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#fde047" />
+              </marker>
+            </defs>
             {/* Wooden Base */}
             <rect x="10" y="80" width="380" height="130" fill="#a16207" rx="5" />
             <rect x="15" y="85" width="370" height="120" fill="#f59e0b" stroke="#854d0e" strokeWidth="1" rx="3">
@@ -27,14 +99,7 @@ const MetreBridge: React.FC<MetreBridgeProps> = ({ jockeyPosition, galvanometerD
             </rect>
 
             {/* Copper Strips */}
-            <defs>
-                <linearGradient id="copperGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" style={{stopColor: '#f59e0b', stopOpacity: 1}} />
-                    <stop offset="50%" style={{stopColor: '#d97706', stopOpacity: 1}} />
-                    <stop offset="100%" style={{stopColor: '#f59e0b', stopOpacity: 1}} />
-                </linearGradient>
-            </defs>
-            <g stroke="url(#copperGradient)" strokeWidth="12" strokeLinecap="round" fill="none">
+            <g stroke="#f59e0b" strokeWidth="12" strokeLinecap="round" fill="none">
                 <polyline points="140,100 60,100 60,150" />
                 <polyline points="180,100 220,100" />
                 <polyline points="260,100 340,100 340,150" />
@@ -77,10 +142,21 @@ const MetreBridge: React.FC<MetreBridgeProps> = ({ jockeyPosition, galvanometerD
 
             {/* Known Resistance Box (R) */}
             <g>
-                <path d="M 140 100 V 70 H 180 V 100" stroke={circuitStrokeColor} strokeWidth="1.5" fill="none" />
-                <rect x="135" y="50" width="50" height="20" rx="3" fill="#1e293b" stroke="#475569" strokeWidth="1"/>
-                <text x="160" y="63" textAnchor="middle" fontSize="6" fill={textFillColor} className="font-mono">R. BOX</text>
-                <text x="160" y="45" textAnchor="middle" fontSize="10" className="font-bold" fill={textFillColor}>R</text>
+              <path d="M 140 100 V 70 H 180 V 100" stroke={circuitStrokeColor} strokeWidth="1.5" fill="none" />
+              {/* Box body */}
+              <rect x="120" y="45" width="80" height="30" rx="3" fill="#854d0e" stroke="#422006" strokeWidth="1"/>
+              <rect x="122" y="47" width="76" height="26" rx="2" fill="#a16207"/>
+              {/* Brass blocks */}
+              <rect x="125" y="55" width="10" height="10" fill="#f59e0b"/>
+              <rect x="140" y="55" width="10" height="10" fill="#f59e0b"/><rect x="155" y="55" width="10" height="10" fill="#f59e0b"/>
+              <rect x="170" y="55" width="10" height="10" fill="#f59e0b"/><rect x="185" y="55" width="10" height="10" fill="#f59e0b"/>
+              {/* Plugs */}
+              <ResistancePlug value={PLUG_VALUES[0]} x={132.5} y={60} isOut={plugsOut[0]} onClick={() => handlePlugClick(0)} isCircuitOn={isCircuitOn} />
+              <ResistancePlug value={PLUG_VALUES[1]} x={147.5} y={60} isOut={plugsOut[1]} onClick={() => handlePlugClick(1)} isCircuitOn={isCircuitOn} />
+              <ResistancePlug value={PLUG_VALUES[2]} x={162.5} y={60} isOut={plugsOut[2]} onClick={() => handlePlugClick(2)} isCircuitOn={isCircuitOn} />
+              <ResistancePlug value={PLUG_VALUES[3]} x={177.5} y={60} isOut={plugsOut[3]} onClick={() => handlePlugClick(3)} isCircuitOn={isCircuitOn} />
+              
+              <text x="160" y="40" textAnchor="middle" fontSize="8" className="font-bold" fill={textFillColor}>R = {knownResistance} Ω</text>
             </g>
 
              {/* Unknown Resistance Coil (S) */}
@@ -94,6 +170,21 @@ const MetreBridge: React.FC<MetreBridgeProps> = ({ jockeyPosition, galvanometerD
             <line x1="60" y1="190" x2="340" y2="190" stroke="#e5e7eb" strokeWidth="2.5" className="drop-shadow-sm" />
             <path d="M 60 150 V 190" stroke={circuitStrokeColor} strokeWidth="1.5" fill="none" />
             <path d="M 340 150 V 190" stroke={circuitStrokeColor} strokeWidth="1.5" fill="none" />
+
+            {/* Animated Current Flow */}
+            <g stroke="#fde047" strokeWidth="1.5" fill="none" markerEnd="url(#arrow)" className={isCircuitOn ? 'current-flow' : 'hidden'}>
+                {/* Top wire from battery */}
+                <path d="M 175 50 H 225" />
+                <path d="M 255 50 H 340 V 100" />
+                {/* Path through R and S */}
+                <path d="M 140 100 H 60" />
+                <path d="M 220 100 H 180" />
+                <path d="M 260 100 H 220" />
+                <path d="M 60 100 V 50 H 145" />
+
+                {/* Path through meter wire */}
+                <path d="M 340 100 V 150 V 190 H 60 V 150 V 100" />
+            </g>
             
             {/* Galvanometer and Connections */}
             <g>

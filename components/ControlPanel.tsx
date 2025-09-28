@@ -1,10 +1,9 @@
+
 import React from 'react';
 
 interface ControlPanelProps {
   isCircuitOn: boolean;
   setIsCircuitOn: (isOn: boolean) => void;
-  knownResistance: number;
-  setKnownResistance: (r: number) => void;
   wireLength: number;
   setWireLength: (l: number) => void;
   wireDiameter: number;
@@ -55,7 +54,7 @@ const LabelledInput: React.FC<{
 
 
 const ControlPanel: React.FC<ControlPanelProps> = (props) => {
-  const { isCircuitOn, setIsCircuitOn, knownResistance, setKnownResistance, wireLength, setWireLength, wireDiameter, setWireDiameter, onRecord, onCalculate, onReset, isBalanced, canRecord } = props;
+  const { isCircuitOn, setIsCircuitOn, wireLength, setWireLength, wireDiameter, setWireDiameter, onRecord, onCalculate, onReset, isBalanced, canRecord } = props;
 
   return (
     <div className="flex flex-col h-full gap-4">
@@ -76,16 +75,6 @@ const ControlPanel: React.FC<ControlPanelProps> = (props) => {
       
       <div className="p-4 bg-gray-900/50 rounded-lg flex flex-col gap-4">
         <h3 className="text-lg font-semibold text-gray-200">Experiment Setup</h3>
-        <LabelledInput
-          label="Known Resistance (R)"
-          unit="Ω"
-          value={knownResistance}
-          onChange={setKnownResistance}
-          min={1}
-          max={10}
-          step={0.5}
-          tooltipText="Sets the resistance from the resistance box. Unit: Ohms (Ω)"
-        />
          <LabelledInput
           label="Unknown Wire Length (L)"
           unit="m"
