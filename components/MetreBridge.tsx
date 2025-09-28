@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { S_ACTUAL } from '../constants';
 
@@ -21,17 +20,44 @@ interface MetreBridgeProps {
 
 const PLUG_VALUES = [5, 2, 2, 1];
 
-const ResistancePlug: React.FC<{ value: number; x: number; y: number; isOut: boolean; onClick: () => void, isCircuitOn: boolean }> = ({ value, x, y, isOut, onClick, isCircuitOn }) => (
-  <g onClick={onClick} className={`cursor-pointer ${!isCircuitOn ? 'opacity-50 pointer-events-none' : ''} group`}>
-    <circle cx={x} cy={y} r="5" fill="#422006" stroke="#6b21a8" strokeWidth="0.5" />
-    <circle cx={x} cy={y} r="4" fill="#1e293b" />
-    <g style={{ transition: 'transform 0.2s ease-in-out' }} transform={isOut ? `translate(12, -8) rotate(15)` : 'translate(0,0)'}>
-        <circle cx={x} cy={y} r="4.5" fill="#b87333" stroke="#8c5a2b" strokeWidth="0.5" className="group-hover:stroke-sky-400" />
-        <rect x={x - 2} y={y - 10} width="4" height="6" rx="1" fill="#1e293b" />
-    </g>
-    <text x={x} y={y - 15} textAnchor="middle" fontSize="6" fill="#e2e8f0" className="font-mono">{value}Ω</text>
-  </g>
-);
+const ResistancePlug: React.FC<{ value: number; x: number; y: number; isOut: boolean; onClick: () => void, isCircuitOn: boolean }> = ({ value, x, y, isOut, onClick, isCircuitOn }) => {
+    const [isPulsing, setIsPulsing] = useState(false);
+    const handleClick = () => {
+        onClick();
+        setIsPulsing(true);
+    };
+
+    return (
+        <g onClick={handleClick} className={`cursor-pointer ${!isCircuitOn ? 'opacity-50 pointer-events-none' : ''} group`}>
+             <defs>
+                <filter id={`glow-${value}-${x}`} x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="2" result="coloredBlur" />
+                    <feMerge>
+                        <feMergeNode in="coloredBlur" />
+                        <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                </filter>
+            </defs>
+            <circle cx={x} cy={y} r="5" fill="#422006" stroke="#6b21a8" strokeWidth="0.5" />
+            <circle cx={x} cy={y} r="4" fill="#1e293b" />
+            <g style={{ transition: 'transform 0.2s ease-in-out' }} transform={isOut ? `translate(12, -8) rotate(15)` : 'translate(0,0)'}>
+                <circle 
+                    cx={x} cy={y} r="4.5" 
+                    fill="#b87333" 
+                    stroke="#8c5a2b" 
+                    strokeWidth="0.5" 
+                    className="group-hover:stroke-sky-400" 
+                    onAnimationEnd={() => setIsPulsing(false)}
+                    style={{
+                        animation: isPulsing ? `pulse-glow 0.5s ease-out` : 'none',
+                    }}
+                />
+                <rect x={x - 2} y={y - 10} width="4" height="6" rx="1" fill="#1e293b" />
+            </g>
+            <text x={x} y={y - 15} textAnchor="middle" fontSize="6" fill="#e2e8f0" className="font-mono">{value}Ω</text>
+        </g>
+    )
+};
 
 const WireSettingsPopup: React.FC<{
   wireLength: number;
@@ -39,7 +65,21 @@ const WireSettingsPopup: React.FC<{
   wireDiameter: number;
   setWireDiameter: (d: number) => void;
   onClose: () => void;
-}> = ({ wireLength, setWireLength, wireDiameter, setWireDiameter, onClose }) => (
+}> = ({ wireLength, setWireLength, wireDiameter, setWireDiameter, onClose }) => {
+    const [animateLength, setAnimateLength] = useState(false);
+    const [animateDiameter, setAnimateDiameter] = useState(false);
+    
+    const handleLengthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setWireLength(parseFloat(e.target.value));
+        setAnimateLength(true);
+    };
+
+    const handleDiameterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setWireDiameter(parseFloat(e.target.value));
+        setAnimateDiameter(true);
+    };
+    
+    return (
     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gray-800/80 backdrop-blur-sm border border-sky-500 rounded-lg p-4 w-64 shadow-2xl z-20">
       <div className="flex justify-between items-center mb-3">
         <h3 className="font-bold text-sky-400">Unknown Wire Settings</h3>
@@ -47,16 +87,26 @@ const WireSettingsPopup: React.FC<{
       </div>
       <div className="space-y-3">
         <div>
-            <label className="text-sm">Length (L): <span className="font-mono text-sky-300">{wireLength.toFixed(1)} m</span></label>
-            <input type="range" min={0.5} max={2} step={0.1} value={wireLength} onChange={e => setWireLength(parseFloat(e.target.value))} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer" />
+            <label className="text-sm">Length (L): 
+                <span 
+                    className="font-mono text-sky-300 inline-block"
+                    onAnimationEnd={() => setAnimateLength(false)}
+                    style={{ animation: animateLength ? 'pulse-value 0.5s ease-out' : 'none' }}
+                > {wireLength.toFixed(1)} m</span></label>
+            <input type="range" min={0.5} max={2} step={0.1} value={wireLength} onChange={handleLengthChange} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer" />
         </div>
         <div>
-            <label className="text-sm">Diameter (d): <span className="font-mono text-sky-300">{wireDiameter.toFixed(2)} mm</span></label>
-            <input type="range" min={0.1} max={1.0} step={0.01} value={wireDiameter} onChange={e => setWireDiameter(parseFloat(e.target.value))} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer" />
+            <label className="text-sm">Diameter (d): 
+                <span 
+                    className="font-mono text-sky-300 inline-block"
+                    onAnimationEnd={() => setAnimateDiameter(false)}
+                    style={{ animation: animateDiameter ? 'pulse-value 0.5s ease-out' : 'none' }}
+                > {wireDiameter.toFixed(2)} mm</span></label>
+            <input type="range" min={0.1} max={1.0} step={0.01} value={wireDiameter} onChange={handleDiameterChange} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer" />
         </div>
       </div>
     </div>
-);
+)};
 
 
 const MetreBridge: React.FC<MetreBridgeProps> = (props) => {
@@ -122,6 +172,16 @@ const MetreBridge: React.FC<MetreBridgeProps> = (props) => {
         .current-flow-galvo {
           stroke-dasharray: 5 5;
           animation: march 1s linear infinite;
+        }
+         @keyframes pulse-glow {
+            0% { filter: drop-shadow(0 0 0px #60a5fa); }
+            50% { filter: drop-shadow(0 0 5px #60a5fa); }
+            100% { filter: drop-shadow(0 0 0px #60a5fa); }
+        }
+        @keyframes pulse-value {
+            0% { transform: scale(1); color: #bae6fd; }
+            50% { transform: scale(1.1); color: #4ade80; }
+            100% { transform: scale(1); color: #bae6fd; }
         }
       `}</style>
       <div className="w-full h-full relative">
@@ -275,15 +335,30 @@ const MetreBridge: React.FC<MetreBridgeProps> = (props) => {
                 <path d="M 200 100 V 150" stroke={textFillColor} strokeWidth="1.5" fill="none" />
                 <rect x="175" y="150" width="50" height="25" fill="#f1f5f9" rx="3" stroke="#4b5563" strokeWidth="1.5" className={`transition-shadow duration-300 ${isBalanced ? 'shadow-[0_0_15px_rgba(74,222,128,0.8)]' : ''}`}/>
                 <rect x="180" y="152" width="40" height="15" fill="white" />
-                <line x1="200" y1="152" x2="200" y2="167" stroke="#d1d5db" strokeWidth="0.5" />
-                <text x="200" y="172" textAnchor="middle" fontSize="10" className="font-bold" fill="#1e293b">G</text>
-                <line 
-                  x1="200" y1="165" x2="200" y2="154" 
-                  stroke={isBalanced ? '#4ade80' : '#dc2626'} 
-                  strokeWidth="1.5" 
-                  transform={`rotate(${galvanometerDeflection}, 200, 165)`} 
-                  className={`origin-bottom transition-all duration-75 ease-out ${isBalanced ? 'drop-shadow-[0_0_4px_#4ade80]' : ''}`} 
-                />
+                
+                {/* Galvanometer Dial and Needle */}
+                <g>
+                    <g stroke="#4b5563" strokeWidth="0.5">
+                        <path d="M 192.9 158 A 10 10 0 0 1 207.1 158" fill="none" stroke="#9ca3af" />
+                        {/* Ticks */}
+                        <line x1="200" y1="155" x2="200" y2="153" strokeWidth="0.7" /> {/* Center */}
+                        <line x1="200" y1="155" x2="200" y2="154" transform="rotate(-22.5, 200, 165)" />
+                        <line x1="200" y1="155" x2="200" y2="154" transform="rotate(22.5, 200, 165)" />
+                        <line x1="200" y1="155" x2="200" y2="153.5" transform="rotate(-45, 200, 165)" />
+                        <line x1="200" y1="155" x2="200" y2="153.5" transform="rotate(45, 200, 165)" />
+                        {/* Center '0' label */}
+                        <text x="200" y="151.5" textAnchor="middle" dominantBaseline="hanging" fontSize="3" fill="#1e293b" className="font-sans font-semibold">0</text>
+                    </g>
+                    {/* Needle */}
+                    <line 
+                      x1="200" y1="165" x2="200" y2="154" 
+                      stroke={isBalanced ? '#4ade80' : '#dc2626'} 
+                      strokeWidth="1.5" 
+                      transform={`rotate(${galvanometerDeflection}, 200, 165)`} 
+                      className={`origin-bottom transition-all duration-75 ease-out ${isBalanced ? 'drop-shadow-[0_0_4px_#4ade80]' : ''}`} 
+                    />
+                </g>
+
                 <path d={`M 200 175 Q ${200 + (jockeyX - 200)/1.5} 185, ${jockeyX} 190`} stroke="#475569" strokeWidth="1.5" fill="none" />
                  {isCircuitOn && Math.abs(galvanometerDeflection) > 0.1 && (
                     <g stroke="#60a5fa" strokeWidth="1.5" fill="none" className="current-flow-galvo" 

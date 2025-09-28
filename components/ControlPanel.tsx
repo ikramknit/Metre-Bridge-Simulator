@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface ControlPanelProps {
   isCircuitOn: boolean;
@@ -14,20 +14,50 @@ interface ControlPanelProps {
   observationCount: number;
 }
 
-const StatusDisplay: React.FC<{ label: string; value: string; unit: string; colorClass?: string }> = ({ label, value, unit, colorClass = 'text-sky-400' }) => (
-  <div className="flex justify-between items-baseline bg-gray-900/50 p-2 rounded-md">
-    <span className="text-sm font-medium text-gray-300">{label}</span>
-    <span className={`font-mono font-bold text-lg ${colorClass}`}>
-      {value} <span className="text-sm text-gray-400">{unit}</span>
-    </span>
-  </div>
-);
+const useAnimateOnChange = (value: any) => {
+    const [animate, setAnimate] = useState(false);
+    const prevValue = React.useRef(value);
+
+    useEffect(() => {
+        if (prevValue.current !== value) {
+            setAnimate(true);
+            prevValue.current = value;
+        }
+    }, [value]);
+
+    return [animate, () => setAnimate(false)];
+};
+
+
+const StatusDisplay: React.FC<{ label: string; value: string; unit: string; colorClass?: string, valueToWatch: any }> = ({ label, value, unit, colorClass = 'text-sky-400', valueToWatch }) => {
+    const [animate, setAnimate] = useAnimateOnChange(valueToWatch);
+    
+    return (
+        <div className="flex justify-between items-baseline bg-gray-900/50 p-2 rounded-md">
+          <span className="text-sm font-medium text-gray-300">{label}</span>
+          <span 
+              className={`font-mono font-bold text-lg ${colorClass} inline-block`}
+              onAnimationEnd={() => setAnimate(false)}
+              style={{ animation: animate ? 'pulse-value 0.5s ease-out' : 'none' }}
+          >
+            {value} <span className="text-sm text-gray-400">{unit}</span>
+          </span>
+        </div>
+    );
+};
 
 const ControlPanel: React.FC<ControlPanelProps> = (props) => {
   const { isCircuitOn, knownResistance, wireLength, wireDiameter, onRecord, onCalculate, onReset, isBalanced, canRecord, observationCount } = props;
 
   return (
     <div className="flex flex-col h-full gap-4">
+        <style>{`
+            @keyframes pulse-value {
+                0% { transform: scale(1); color: #bae6fd; }
+                50% { transform: scale(1.05); color: #4ade80; }
+                100% { transform: scale(1); color: #bae6fd; }
+            }
+        `}</style>
       <h2 className="text-xl font-bold text-sky-400 text-center">Controls & Readouts</h2>
       
       <div className="p-3 bg-gray-900/50 rounded-lg flex flex-col gap-3">
@@ -39,9 +69,9 @@ const ControlPanel: React.FC<ControlPanelProps> = (props) => {
                 <div className={`w-3 h-3 rounded-full ${isCircuitOn ? 'bg-green-500' : 'bg-red-500'}`}></div>
            </div>
         </div>
-        <StatusDisplay label="Known Resistance (R)" value={knownResistance.toFixed(1)} unit="Ω" />
-        <StatusDisplay label="Wire Length (L)" value={wireLength.toFixed(1)} unit="m" />
-        <StatusDisplay label="Wire Diameter (d)" value={wireDiameter.toFixed(2)} unit="mm" />
+        <StatusDisplay label="Known Resistance (R)" value={knownResistance.toFixed(1)} unit="Ω" valueToWatch={knownResistance} />
+        <StatusDisplay label="Wire Length (L)" value={wireLength.toFixed(1)} unit="m" valueToWatch={wireLength} />
+        <StatusDisplay label="Wire Diameter (d)" value={wireDiameter.toFixed(2)} unit="mm" valueToWatch={wireDiameter} />
       </div>
 
       <div className="mt-auto flex flex-col gap-3">
