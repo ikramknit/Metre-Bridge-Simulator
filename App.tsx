@@ -25,7 +25,6 @@ export default function App(): React.ReactElement {
   const [showTutorial, setShowTutorial] = useState<boolean>(false);
 
   const wireRef = useRef<HTMLDivElement>(null);
-  const balancingPoint = (100 * knownResistance) / (S_ACTUAL + knownResistance);
   
   useEffect(() => {
     const hasSeenTutorial = localStorage.getItem('hasSeenMetreBridgeTutorial');
@@ -131,11 +130,11 @@ export default function App(): React.ReactElement {
   const isBalanced = Math.abs(galvanometerDeflection) < 0.5 && isCircuitOn;
 
   return (
-    <div className="bg-gray-900 min-h-screen text-white flex flex-col items-center p-4 selection:bg-cyan-500 selection:text-white">
+    <div className="bg-gray-900 min-h-screen text-white flex flex-col items-center p-4 selection:bg-sky-500 selection:text-white">
       {showTutorial && <TutorialOverlay onDismiss={handleDismissTutorial} />}
 
       <header className="w-full max-w-7xl text-center mb-4">
-        <h1 className="text-4xl font-bold text-cyan-400">Metre Bridge Simulator</h1>
+        <h1 className="text-4xl font-bold text-sky-400">Metre Bridge Simulator</h1>
         <p className="text-gray-400 mt-1">To find the resistance of a given wire and determine its specific resistance (resistivity).</p>
       </header>
       

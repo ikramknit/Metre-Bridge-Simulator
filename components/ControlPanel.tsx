@@ -14,7 +14,7 @@ interface ControlPanelProps {
   observationCount: number;
 }
 
-const StatusDisplay: React.FC<{ label: string; value: string; unit: string; colorClass?: string }> = ({ label, value, unit, colorClass = 'text-cyan-400' }) => (
+const StatusDisplay: React.FC<{ label: string; value: string; unit: string; colorClass?: string }> = ({ label, value, unit, colorClass = 'text-sky-400' }) => (
   <div className="flex justify-between items-baseline bg-gray-900/50 p-2 rounded-md">
     <span className="text-sm font-medium text-gray-300">{label}</span>
     <span className={`font-mono font-bold text-lg ${colorClass}`}>
@@ -28,7 +28,7 @@ const ControlPanel: React.FC<ControlPanelProps> = (props) => {
 
   return (
     <div className="flex flex-col h-full gap-4">
-      <h2 className="text-xl font-bold text-cyan-400 text-center">Controls & Readouts</h2>
+      <h2 className="text-xl font-bold text-sky-400 text-center">Controls & Readouts</h2>
       
       <div className="p-3 bg-gray-900/50 rounded-lg flex flex-col gap-3">
         <h3 className="text-lg font-semibold text-gray-200 text-center border-b border-gray-700 pb-2 mb-2">Experiment Parameters</h3>
@@ -49,7 +49,7 @@ const ControlPanel: React.FC<ControlPanelProps> = (props) => {
            onClick={onRecord}
            disabled={!isBalanced || !canRecord}
            className={`w-full py-2 px-4 font-bold rounded-md transition-all duration-200 text-white
-             ${isBalanced && canRecord ? 'bg-cyan-500 hover:bg-cyan-600' : 'bg-gray-700 text-gray-500 cursor-not-allowed'}
+             ${isBalanced && canRecord ? 'bg-sky-500 hover:bg-sky-600' : 'bg-gray-700 text-gray-500 cursor-not-allowed'}
              ${isBalanced && !isCircuitOn ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : ''}
            `}
          >

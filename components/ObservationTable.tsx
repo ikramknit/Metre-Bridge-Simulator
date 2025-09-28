@@ -9,10 +9,10 @@ interface ObservationTableProps {
 const ObservationTable: React.FC<ObservationTableProps> = ({ observations }) => {
   return (
     <div>
-      <h2 className="text-xl font-bold text-cyan-400 mb-3">Observation Table</h2>
+      <h2 className="text-xl font-bold text-sky-400 mb-3">Observation Table</h2>
       <div className="overflow-x-auto">
         <table className="w-full text-sm text-left text-gray-300">
-          <thead className="text-xs text-cyan-400 uppercase bg-gray-700">
+          <thead className="text-xs text-sky-400 uppercase bg-gray-700">
             <tr>
               <th scope="col" className="px-4 py-3">S.No.</th>
               <th scope="col" className="px-4 py-3">Known R (Ω)</th>
