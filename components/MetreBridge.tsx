@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { S_ACTUAL } from '../constants';
 
@@ -234,6 +235,9 @@ const MetreBridge: React.FC<MetreBridgeProps> = (props) => {
                 <path d="M 220 100 V 70 H 260 V 100" stroke={circuitStrokeColor} strokeWidth="1.5" fill="none" />
                 <path transform="translate(222, 55)" d="M 0 5 C 5 0, 10 10, 15 5 C 20 0, 25 10, 30 5 C 35 0, 40 10, 45 5" stroke="#9ca3af" strokeWidth="1.5" fill="none"/>
                 <text x="240" y="45" textAnchor="middle" fontSize="10" className="font-bold" fill={textFillColor}>S</text>
+                <text x="240" y="85" textAnchor="middle" fontSize="6" className="font-mono" fill={textFillColor} opacity="0.7">
+                  Actual: {S_ACTUAL.toFixed(1)} Ω
+                </text>
                 <g onClick={() => setIsSettingsOpen(true)} className="cursor-pointer group">
                     <circle cx="265" cy="60" r="6" fill="#1e293b" className="opacity-50 group-hover:opacity-100" />
                     <path d="M263,58 l4,4 m0,-4 l-4,4" stroke="white" strokeWidth="1.5" className="group-hover:stroke-sky-400" />
@@ -269,11 +273,17 @@ const MetreBridge: React.FC<MetreBridgeProps> = (props) => {
             
             <g>
                 <path d="M 200 100 V 150" stroke={textFillColor} strokeWidth="1.5" fill="none" />
-                <rect x="175" y="150" width="50" height="25" fill="#f1f5f9" rx="3" stroke="#4b5563" strokeWidth="1.5" className={isBalanced ? 'shadow-[0_0_15px_rgba(56,189,248,0.7)]' : ''}/>
+                <rect x="175" y="150" width="50" height="25" fill="#f1f5f9" rx="3" stroke="#4b5563" strokeWidth="1.5" className={`transition-shadow duration-300 ${isBalanced ? 'shadow-[0_0_15px_rgba(74,222,128,0.8)]' : ''}`}/>
                 <rect x="180" y="152" width="40" height="15" fill="white" />
                 <line x1="200" y1="152" x2="200" y2="167" stroke="#d1d5db" strokeWidth="0.5" />
                 <text x="200" y="172" textAnchor="middle" fontSize="10" className="font-bold" fill="#1e293b">G</text>
-                <line x1="200" y1="165" x2="200" y2="154" stroke="#dc2626" strokeWidth="1.5" transform={`rotate(${galvanometerDeflection}, 200, 165)`} className="origin-bottom transition-transform duration-100" />
+                <line 
+                  x1="200" y1="165" x2="200" y2="154" 
+                  stroke={isBalanced ? '#4ade80' : '#dc2626'} 
+                  strokeWidth="1.5" 
+                  transform={`rotate(${galvanometerDeflection}, 200, 165)`} 
+                  className={`origin-bottom transition-all duration-75 ease-out ${isBalanced ? 'drop-shadow-[0_0_4px_#4ade80]' : ''}`} 
+                />
                 <path d={`M 200 175 Q ${200 + (jockeyX - 200)/1.5} 185, ${jockeyX} 190`} stroke="#475569" strokeWidth="1.5" fill="none" />
                  {isCircuitOn && Math.abs(galvanometerDeflection) > 0.1 && (
                     <g stroke="#60a5fa" strokeWidth="1.5" fill="none" className="current-flow-galvo" 
