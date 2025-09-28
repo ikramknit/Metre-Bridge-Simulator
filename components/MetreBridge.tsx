@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { S_ACTUAL } from '../constants';
 
@@ -155,15 +154,58 @@ const MetreBridge: React.FC<MetreBridgeProps> = (props) => {
 
             <path d="M 60 50 V 100" stroke={circuitStrokeColor} strokeWidth="1.5" fill="none" />
             <path d="M 340 50 V 100" stroke={circuitStrokeColor} strokeWidth="1.5" fill="none" />
-            <path d="M 60 50 H 145" stroke={circuitStrokeColor} strokeWidth="1.5" fill="none" />
-            <path d="M 255 50 H 340" stroke={circuitStrokeColor} strokeWidth="1.5" fill="none" />
-            <path d="M 175 50 H 225" stroke={circuitStrokeColor} strokeWidth="1.5" fill="none" />
+            <path d="M 60 50 H 154" stroke={circuitStrokeColor} strokeWidth="1.5" fill="none" />
+            <path d="M 250 50 H 340" stroke={circuitStrokeColor} strokeWidth="1.5" fill="none" />
+            <path d="M 208 50 H 230" stroke={circuitStrokeColor} strokeWidth="1.5" fill="none" />
             
-            <g transform="translate(170, 20)" className="cursor-pointer" onClick={() => setIsCircuitOn(!isCircuitOn)}>
-                <rect x="-25" y="0" width="60" height="30" fill="#111827" rx="4" stroke="#475569" strokeWidth="1.5"/>
-                <rect x="-23" y="2" width="56" height="26" fill="#1e293b" rx="2" />
-                <circle cx="22.5" cy="15" r="5" fill={isCircuitOn ? '#2563eb' : '#4b5563'} className="transition-colors duration-300" stroke={isCircuitOn ? '#1d4ed8' : '#374151'} strokeWidth="1" />
-                <text x="-5" y="18" textAnchor="middle" fontSize="8" fill={textFillColor} className="font-mono font-bold">POWER</text>
+            {/* DC Power Supply */}
+            <g className="cursor-pointer" onClick={() => setIsCircuitOn(!isCircuitOn)}>
+                <defs>
+                    <linearGradient id="power-supply-body" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor="#d1d5db" />
+                        <stop offset="100%" stopColor="#9ca3af" />
+                    </linearGradient>
+                    <linearGradient id="power-supply-face" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor="#e5e7eb" />
+                        <stop offset="100%" stopColor="#d1d5db" />
+                    </linearGradient>
+                    <filter id="inner-shadow" x="-50%" y="-50%" width="200%" height="200%">
+                        <feComponentTransfer in="SourceAlpha"><feFuncA type="table" tableValues="1 0" /></feComponentTransfer>
+                        <feGaussianBlur stdDeviation="1"/>
+                        <feOffset dx="1" dy="1" result="offsetblur"/>
+                        <feFlood floodColor="#000" floodOpacity="0.5" result="color"/>
+                        <feComposite in2="offsetblur" operator="in"/>
+                        <feComposite in2="SourceAlpha" operator="out" />
+                        <feMerge><feMergeNode in="SourceGraphic"/><feMergeNode/></feMerge>
+                    </filter>
+                </defs>
+                
+                <rect x="140" y="20" width="85" height="40" rx="4" fill="url(#power-supply-body)" stroke="#4b5569" strokeWidth="1"/>
+                <rect x="142" y="22" width="81" height="36" rx="2" fill="url(#power-supply-face)" />
+                <text x="182.5" y="17" textAnchor="middle" fontSize="6" fill="#374151" className="font-sans font-bold tracking-wider">DC SUPPLY</text>
+
+                <rect x="170" y="28" width="30" height="15" rx="2" fill="#1e293b" stroke="#111827" strokeWidth="1" />
+                <rect x="171" y="29" width="28" height="13" rx="1" fill="#374151" opacity="0.3" />
+                <text x="185" y="39" textAnchor="middle" fontSize="9" fill="#4ade80" className="font-mono font-bold tracking-wider" style={{textShadow: '0 0 5px #4ade80'}}>9.0V</text>
+                
+                <g transform="translate(154, 36)">
+                    <circle cx="0" cy="0" r="7" fill="#1f2937" />
+                    <circle cx="0" cy="0" r="6" fill={isCircuitOn ? '#dc2626' : '#b91c1c'} className="transition-colors duration-200" filter="url(#inner-shadow)" style={{transform: isCircuitOn ? 'scale(0.95)' : 'scale(1)', transition: 'transform 0.1s ease'}}/>
+                    <circle cx="0" cy="0" r="5" fill="none" stroke="#f87171" strokeOpacity="0.5" strokeWidth="1"/>
+                    <text x="0" y="16" textAnchor="middle" fontSize="6" fill={textFillColor} className="font-mono font-bold">ON/OFF</text>
+                </g>
+
+                <g transform="translate(154, 50)">
+                    <circle cx="0" cy="0" r="6" fill="#1f2937" />
+                    <circle cx="0" cy="0" r="5" fill="#374151"/>
+                    <rect x="-2.5" y="-1" width="5" height="2" fill="#9ca3af"/>
+                </g>
+                <g transform="translate(208, 50)">
+                    <circle cx="0" cy="0" r="6" fill="#7f1d1d" />
+                    <circle cx="0" cy="0" r="5" fill="#b91c1c"/>
+                    <rect x="-2.5" y="-1" width="5" height="2" fill="#fecaca"/>
+                    <rect x="-1" y="-2.5" width="2" height="5" fill="#fecaca"/>
+                </g>
             </g>
             
             <g transform="translate(240, 30)">
@@ -218,9 +260,9 @@ const MetreBridge: React.FC<MetreBridgeProps> = (props) => {
 
 
             <g stroke="#60a5fa" strokeWidth="1.5" fill="none" markerEnd="url(#arrow-blue)" className={isCircuitOn ? 'current-flow' : 'hidden'}>
-                <path d="M 195 50 H 225" /> <path d="M 255 50 H 340 V 100" />
+                <path d="M 208 50 H 230" /> <path d="M 250 50 H 340 V 100" />
                 <path d="M 140 100 H 60" /> <path d="M 220 100 H 180" /> <path d="M 260 100 H 220" />
-                <path d="M 60 100 V 50 H 145" />
+                <path d="M 60 100 V 50 H 154" />
                 <path d="M 340 100 V 150 V 190 H 200" />
                 <path d="M 200 190 H 60 V 150 V 100" />
             </g>
