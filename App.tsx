@@ -1,7 +1,7 @@
-
 import React, { useState } from 'react';
 import MetreBridgeApp from './MetreBridgeApp';
 import OhmsLawApp from './OhmsLawApp';
+import ResistanceCombinationApp from './ResistanceCombinationApp';
 
 const practicals = {
   'metre-bridge': {
@@ -13,6 +13,11 @@ const practicals = {
     name: "Ohm's Law",
     component: OhmsLawApp,
     description: 'To determine resistance per cm of a given wire by plotting a graph of potential difference versus current.'
+  },
+  'resistance-combination': {
+    name: 'Combination of Resistances',
+    component: ResistanceCombinationApp,
+    description: 'To verify the laws of combination (series/parallel) of resistances using a metre bridge.'
   }
 };
 

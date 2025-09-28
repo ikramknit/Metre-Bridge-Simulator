@@ -1,5 +1,5 @@
 {
-  "name": "Metre Bridge Simulator",
-  "description": "A realistic physics practical simulator. Features two experiments: 1) Find the resistance and resistivity of a wire using a Metre Bridge. 2) Determine the resistance per cm of a wire by plotting a graph of potential difference versus current (Ohm's Law).",
+  "name": "Virtual Physics Lab",
+  "description": "A realistic physics practical simulator. Features three experiments: 1) Find the resistance and resistivity of a wire using a Metre Bridge. 2) Determine resistance per cm of a wire using Ohm's Law. 3) Verify the laws of combination (series/parallel) of resistances using a metre bridge.",
   "requestFramePermissions": []
 }

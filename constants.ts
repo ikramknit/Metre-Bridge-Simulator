@@ -1,4 +1,3 @@
-
 // METRE BRIDGE CONSTANTS
 // This represents the "true" physical property of the simulated unknown wire.
 // The student's goal is to find this value through the experiment.
@@ -13,3 +12,7 @@ export const BATTERY_EMF: number = 6.0; // Volts (V)
 export const BATTERY_INTERNAL_RESISTANCE: number = 0.5; // Ohms (Ω)
 export const RHEOSTAT_MAX_RESISTANCE: number = 10.0; // Ohms (Ω)
 export const AMMETER_RESISTANCE: number = 0.1; // Ohms (Ω)
+
+// RESISTANCE COMBINATION CONSTANTS
+export const R1_ACTUAL: number = 4.0; // Ohms (Ω)
+export const R2_ACTUAL: number = 6.0; // Ohms (Ω)
