@@ -87,7 +87,7 @@ export default function App(): React.ReactElement {
     const isBalanced = Math.abs(galvanometerDeflection) < 0.5;
     if (isBalanced && observations.length < 5 && knownResistance > 0) {
       const l = jockeyPosition;
-      const sValue = knownResistance * ((100-l) / l); // Corrected formula based on common lab setup
+      const sValue = knownResistance * ((100-l) / l);
       const newObservation: Observation = {
         serial: observations.length + 1,
         R: knownResistance,
@@ -140,32 +140,36 @@ export default function App(): React.ReactElement {
       </header>
       
       <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-gray-800 p-6 rounded-2xl shadow-2xl border border-gray-700">
+        <div className="lg:col-span-2 bg-gray-800 p-2 sm:p-4 rounded-2xl shadow-2xl border border-gray-700">
            <MetreBridge
              jockeyPosition={jockeyPosition}
              galvanometerDeflection={galvanometerDeflection}
              isCircuitOn={isCircuitOn}
+             setIsCircuitOn={setIsCircuitOn}
              wireRef={wireRef}
              onMouseDownOnWire={handleMouseDownOnWire}
              isBalanced={isBalanced}
              knownResistance={knownResistance}
              setKnownResistance={setKnownResistance}
+             wireLength={wireLength}
+             setWireLength={setWireLength}
+             wireDiameter={wireDiameter}
+             setWireDiameter={setWireDiameter}
            />
         </div>
 
         <div className="bg-gray-800 p-6 rounded-2xl shadow-2xl flex flex-col gap-4 border border-gray-700">
           <ControlPanel
             isCircuitOn={isCircuitOn}
-            setIsCircuitOn={setIsCircuitOn}
+            knownResistance={knownResistance}
             wireLength={wireLength}
-            setWireLength={setWireLength}
             wireDiameter={wireDiameter}
-            setWireDiameter={setWireDiameter}
             onRecord={handleRecordObservation}
             onCalculate={handleCalculate}
             onReset={handleReset}
             isBalanced={isBalanced}
             canRecord={observations.length < 5 && knownResistance > 0}
+            observationCount={observations.length}
           />
         </div>
       </div>

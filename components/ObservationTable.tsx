@@ -18,7 +18,7 @@ const ObservationTable: React.FC<ObservationTableProps> = ({ observations }) => 
               <th scope="col" className="px-4 py-3">Known R (Ω)</th>
               <th scope="col" className="px-4 py-3">Balancing l (cm)</th>
               <th scope="col" className="px-4 py-3">100 - l (cm)</th>
-              <th scope="col" className="px-4 py-3">S = R((100-l)/l) (Ω)</th>
+              <th scope="col" className="px-4 py-3">S = R(100-l)/l (Ω)</th>
             </tr>
           </thead>
           <tbody>
